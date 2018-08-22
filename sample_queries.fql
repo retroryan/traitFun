@@ -1,0 +1,401 @@
+CreateClass({ name: "no_customer" })
+CreateClass({ name: "order" })
+
+CreateIndex(
+{
+  name: "all_customers",
+  source: Class("customer")
+})
+
+CreateIndex(
+{
+  name: "all_orders",
+  source: Class("order")
+})
+
+Paginate(Indexes(null))
+
+Paginate(Match(Index("all_customers")))
+
+Get(Ref(Class("customer"), "207443833420513794"))
+
+Paginate(Match(Index("all_orders")))
+
+Map(
+  Paginate(Match(Index("all_customers"))),
+  Lambda("cst",
+      Get(Var("cst"))
+    )
+)
+
+
+Map(
+  Paginate(Match(Index("all_orders"))),
+  Lambda("cst",
+      Get(Var("cst"))
+    )
+)
+
+Get(Index("customer_by_id"))
+
+Paginate(Match(Index("customer_by_id"), Casefold("QUEEN")))
+
+Paginate(Match(Index("orders_by_customer_id"),"QUEEN"))
+
+Map(
+  Paginate(
+        Union(
+            Match(Index("orders_by_customer_id"), "NORTS"),
+            Match(Index("orders_by_customer_id"), "QUEDE"),
+            Match(Index("orders_by_customer_id"), "QUICK"),
+            Match(Index("orders_by_customer_id"), "SEVES"),
+            Match(Index("orders_by_customer_id"), "TORTU"),
+            Match(Index("orders_by_customer_id"), "THEBI")
+        )
+  ),
+  Lambda("cst",
+      Select(["data","details"],Get(Var("cst")))
+    )
+)
+
+
+
+Map(
+  Paginate(Match(Index("order_by_id"), 10307)),
+  Lambda("ordr",
+       Let(
+             {
+                customer: Get(Var("ordr")),
+                customerID: Casefold(Select((["data","customerID"]),Get(Var("ordr"))))
+             },
+             Map(
+               Paginate(Match(Index("customer_by_id"), Var("customerID"))),
+               Lambda("cst",
+                   [Var("customer"), Get(Var("cst"))]
+                 )
+             )
+         )
+    )
+)
+
+
+Map(
+  Paginate(Match(Index("order_by_id"), 11072)),
+  Lambda("ordr",
+      Select((["data","customerID"]),Get(Var("ordr")))
+    )
+)
+
+#Try query with PICCO, LONEP
+Map(
+  Paginate(Match(Index("orders_by_customer_id"), "LONEP")),
+  Lambda("ordr",
+      Get(Var("ordr"))
+    )
+)
+
+# Paginate Queries
+
+
+Paginate(Match(Index("all_orders_by_customer_id")), {size:50, after:"LONEP"})
+
+Paginate(Match(Index("all_orders_by_customer_id")), {size:50, before:"LONEP"})
+
+# Select Queries
+
+Paginate(Match(Index("orders_by_customer_id"), "QUEEN"))
+
+Map(
+  Paginate(Match(Index("orders_by_customer_id"), "LONEP")),
+  Lambda("ordr",
+      Var("ordr")
+    )
+)
+
+Map(
+   Paginate(Match(Index("orders_by_customer_id"), "LONEP")),
+   Lambda("ordr",
+       Select(2,Var("ordr"))
+     )
+ )
+
+
+Map(
+   Paginate(Match(Index("orders_by_customer_id"), "LONEP")),
+   Lambda("ordr",
+       Get(Select(2,Var("ordr")))
+     )
+ )
+
+Map(
+    Paginate(Match(Index("orders_by_customer_id"), "LONEP")),
+    Lambda("ordr",
+        Select(["data","details"],
+            Get(Select(2,Var("ordr")))
+        )
+      )
+)
+
+Map(
+    Paginate(Match(Index("orders_by_customer_id"), "LONEP")),
+    Lambda("ordr",
+        SelectAll(["data","details", "productID"],
+            Get(Select(2,Var("ordr")))
+        )
+      )
+)
+
+Map(
+  Paginate(Match(Index("order_by_id"), 10307)),
+  Lambda("ordr",
+       Let(
+             {
+                customer: Get(Var("ordr")),
+                customerID: Casefold(Select((["data","customerID"]),Get(Var("ordr"))))
+             },
+             Map(
+               Paginate(Match(Index("customer_by_id"), Var("customerID"))),
+               Lambda("cst",
+                   [Var("customer"), Get(Var("cst"))]
+                 )
+             )
+         )
+    )
+)
+
+Map(
+  Paginate(Match(Index("all_orders")),{size:100}),
+  Lambda("ordr",
+       Let(
+             {
+                customer: Get(Var("ordr")),
+                customerID: Casefold(Select((["data","customerID"]),Get(Var("ordr"))))
+             },
+             Map(
+               Paginate(Match(Index("customer_by_id"), Var("customerID"))),
+               Lambda("cst",
+                   Get(Var("cst")
+                 )
+                )
+             )
+        )
+    )
+)
+
+Map(
+  Paginate(Match(Index("all_orders")),{size:100}),
+  Lambda("ordr",
+       Let(
+             {
+                customer: Get(Var("ordr")),
+                customerID: Casefold(Select((["data","customerID"]),Get(Var("ordr"))))
+             },
+             Map(
+               Paginate(Match(Index("customer_by_id"), Var("customerID"))),
+               Lambda("cst",
+                   SelectAll(["data", "customerID"],Get(Var("cst")))
+                 )
+
+             )
+        )
+    )
+)
+
+Map(
+  Paginate(Match(Index("all_orders")),{size:1000}),
+  Lambda("ordr",
+       Let(
+             {
+                customer: Get(Var("ordr")),
+                customerID: Casefold(Select((["data","customerID"]),Get(Var("ordr"))))
+             },
+             Map(
+               Paginate(Distinct(Match(Index("customer_by_id"), Var("customerID")))),
+               Lambda("cst",
+                   SelectAll(["data", "customerID"],Get(Var("cst")))
+                 )
+
+             )
+        )
+    )
+)
+
+Map(
+  Paginate(Match(Index("all_orders")),{size:1000}),
+  Lambda("ordr",
+       Let(
+             {
+                customer: Get(Var("ordr"))
+
+             },
+             Let( {
+                 customerID: Casefold(Select((["data","customerID"]),Var("customer"))),
+                 Map(
+                   Paginate(Distinct(Match(Index("customer_by_id"), Var("customerID")))),
+                   Lambda("cst",
+                       SelectAll(["data", "customerID"],Get(Var("cst")))
+                     )
+
+                 )
+             })
+        )
+    )
+)
+
+
+#Sample Indexes
+
+CreateIndex(
+{
+  name: "order_with_customer_id",
+  source: Class("customer"),
+  terms: [{ field: ["data", "orderID"] }],
+  values: [{ field: ["data", "counter"] }, { field: ["data","path_refs"] }]
+})
+
+#Counter Class
+
+CreateClass({ name: "order" })
+
+CreateIndex(
+{
+  name: "orders_uid",
+  source: Class("order"),
+  values: [{ field: ["data", "orderID"], reverse:true },
+           { field: ["data","customerID"] }]
+
+})
+
+Let( {
+  // Get the latest orders.
+  head:Paginate(Match(Index("all_orders")), {size:1})
+  },
+  Var("head")
+)
+
+Let( {
+  // Get the latest orders.
+  head:Paginate(Match(Index("all_orders")), {size:1})
+  },
+  Let({
+     last_index:Select([0,0],Var("head"))
+    },
+    Var("last_index")
+   )
+)
+
+Let( {
+  // Get the latest orders.
+  head:Paginate(Match(Index("all_orders")), {size:1})
+  },
+  Let({
+     last_index:Select([0,0],Var("head"))
+    },
+    Create(Class("order"),{
+        data:{
+    		"orderID" : Add(Var("last_index"),1),
+    		"customerID" : "RICAR",
+    		"employeeID" : 6,
+    		"description" : "please rush shipment"
+    	}
+    })
+   )
+)
+
+Let( {
+  // Get the latest orders.
+  head:Paginate(Match(Index("all_orders")), {size:1})
+  },
+  Let({
+     last_index:Select([0,0],Var("head"))
+    },
+    Create(Class("order"),{
+        data:{
+    		"orderID" : Add(Var("last_index"),1),
+    		"customerID" : "ERNSH",
+    		"employeeID" : 6,
+    		"description" : "priority shipment"
+    	}
+    })
+   )
+)
+
+Update(Index("all_orders"), {serialized:true})
+
+Update(Index("all_orders"), {unique:true})
+
+Create(Class("order"),{
+        data:{
+    		"orderID" : 11079,
+    		"customerID" : "ERNSH",
+    		"employeeID" : 6,
+    		"description" : "priority shipment"
+    	}
+    })
+
+
+CreateClass({ name: "task" })
+
+CreateFunction({
+    name: "create_task",
+    body: Query(
+      Lambda(
+        ["description"],
+        Create(Class("task"),{data:{"taskID" : 12079,"description" : Var("description")}})
+      )
+    ),
+   permissions: { call: "public" }
+})
+
+permissions: { "call": ref(user.ref) }
+
+
+Call(Function("create_task"), ["Stuff"])
+
+Delete(Function("create_task"))
+
+"productID" : 7
+
+CreateFunction({
+		name: "get_val",
+		body: Query(Lambda(["class_name", "ref_id"],
+						Select(["data", "orderID"], Get(Ref(Class(Var("class_name")), Var("ref_id")))))),
+		permissions: { call: "public" }
+})
+
+Call(Function("get_val"), ["order", "207497570876917249"])
+
+Delete(Function("get_val"))
+
+Login(Ref(q.Class("task"), "181388642114077184"), { password: "abracadabra" }))
+
+CreateClass({ name: "authors" })
+
+Create(q.Class("authors"), {
+  data: { name: "pat" },
+  credentials: { password: "123456" }
+})
+
+q.Call(q.Function("get_val"), ["order", "207497570876917249"])
+
+
+Create(Class("order"),{
+        data:{
+    		"orderID" : 11095,
+    		"customerID" : "ERNSH",
+    		"employeeID" : 6,
+    		"productID" : 21,
+    		"description" : "priority shipment"
+    	}
+    })
+
+
+
+Update(
+    Ref(Class("order"), "207553635813425668"),
+        { data: { productID: 12, tag: "update order" } }
+)
+
+Get(Ref(Class("order"),"207553635813425668"),1534197421684875)
+
+Paginate(Events(Ref(Class("order"), "207553635813425668")))
