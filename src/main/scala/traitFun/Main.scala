@@ -1,10 +1,9 @@
 package traitFun
 
-import grizzled.slf4j.Logging
 import io.circe.generic.auto._
 import io.circe.syntax._
 
-object Main extends Logging {
+object Main  {
 
   def main(args: Array[String]): Unit = {
 
@@ -15,9 +14,12 @@ object Main extends Logging {
     wa.asJson
 
     val c1 = Customer("Flo", ha)
-    c1.asJson
+    val j1 = c1.asJson
+    println(s"j1: $j1")
 
     val c2 = Customer("Walter", wa)
-    wa.asJson
+    val j2 = c2.asJson
+    println(s"j2: $j2")
+
   }
 }
