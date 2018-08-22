@@ -1,7 +1,6 @@
 package traitFun
 
 import grizzled.slf4j.Logging
-import onFauna.{Customer, HomeAddress, WorkAddress}
 import io.circe.generic.auto._
 import io.circe.syntax._
 
