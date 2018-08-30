@@ -12,10 +12,13 @@ lazy val root = project.in(file("."))
   .settings(common)
   .settings(
     libraryDependencies ++= Seq(
-    "io.circe" %% "circe-core" % circeVersion,
-    "io.circe" %% "circe-generic" % circeVersion,
-    "io.circe" %% "circe-parser" % circeVersion
-   )
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.6",
+      "com.fasterxml.jackson.core" % "jackson-core" % "2.9.6",
+      "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.6",
+      "io.circe" %% "circe-core" % circeVersion,
+      "io.circe" %% "circe-generic" % circeVersion,
+      "io.circe" %% "circe-parser" % circeVersion
+    )
   )
 
 

@@ -12,6 +12,11 @@ object Address {
 
 }
 
+case object EmptyAddress  extends Address {
+  implicit val emptyAddressDecoder: Decoder[EmptyAddress.type ] = deriveDecoder[EmptyAddress.type]
+  implicit val emptyAddressEncoder: Encoder[EmptyAddress.type] = deriveEncoder[EmptyAddress.type]
+}
+
 case class HomeAddress(street: String, city: String,
                    homePhone: String, dogsName:String) extends Address
 
